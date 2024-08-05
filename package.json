@@ -1,0 +1,18 @@
+{
+    "name": "nodejs-server",
+    "version": "1.0.0",
+    "description": "A Node.js server to serve a React app",
+    "main": "app.js",
+    "scripts": {
+      "start": "node app.js"
+    },
+    "dependencies": {
+      "express": "^4.18.2"
+    },
+    "engines": {
+      "node": ">=14.0.0"
+    },
+    "author": "Your Name",
+    "license": "MIT"
+  }
+  
