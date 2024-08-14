@@ -4,7 +4,7 @@ stages:
 checkout:
   stage: checkout
   script:
-    - git clone https://github.com/your-repo/your-project.git
+    - https://github.com/trytechitsolutions/LMS-WEB.git
     - cd your-project
     - git checkout main
 
