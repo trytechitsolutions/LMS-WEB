@@ -1,14 +1,34 @@
-stages:
-  - checkout
+pipeline {
+    agent any
 
-checkout:
-  stage: checkout
-  script:
-    - https://github.com/trytechitsolutions/LMS-WEB.git
-    - cd your-project
-    - git checkout main
+    stages {
+        stage('Checkout') {
+            steps {
+                script {
+                    // Checkout the repository
+                    git url: 'https://github.com/trytechitsolutions/LMS-WEB.git', branch: 'main'
+                }
+                // Navigate to your project directory (if necessary)
+                dir('your-project') {
+                    steps {
+                        // Check out the main branch
+                        sh 'git checkout main'
+                    }
+                }
+            }
+        }
+    }
 
-after_script:
-  - if [ "$CI_JOB_STATUS" == "success" ]; then echo "Pipeline succeeded!"; fi
-  - if [ "$CI_JOB_STATUS" == "failed" ]; then echo "Pipeline failed."; fi
-  - rm -rf *
+    post {
+        success {
+            echo 'Pipeline succeeded!'
+        }
+        failure {
+            echo 'Pipeline failed.'
+        }
+        always {
+            // Clean up workspace after the job
+            cleanWs()
+        }
+    }
+}
