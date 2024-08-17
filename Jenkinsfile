@@ -20,7 +20,6 @@ pipeline {
         stage('Fix Permissions') {
             steps {
                 dir('/var/www/html/UI/LMS-WEB') {
-                    // Fix permissions
                     sh 'sudo chown -R jenkins:jenkins .'
                     sh 'sudo chmod -R 755 .'
                 }
@@ -44,6 +43,9 @@ pipeline {
                         else
                             pm2 start app.js --name app
                         fi
+                        pm2 save
+                        pm2 list
+                        pm2 logs app
                     '''
                 }
             }
