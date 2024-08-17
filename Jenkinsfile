@@ -1,21 +1,15 @@
 pipeline {
     agent any
 
-    environment {
-        PROJECT_DIR = '/var/www/html/UI/LMS-WEB'
-    }
-
     stages {
         stage('Checkout') {
             steps {
                 script {
-                    // Check if the directory already exists
-                    if (!fileExists(PROJECT_DIR)) {
-                        // Clone the repository if it doesn't exist
-                        sh "git clone https://github.com/trytechitsolutions/LMS-WEB.git ${PROJECT_DIR}"
+                    def projectDir = '/var/www/html/UI/LMS-WEB'
+                    if (!fileExists(projectDir)) {
+                        sh "git clone https://github.com/trytechitsolutions/LMS-WEB.git ${projectDir}"
                     } else {
-                        // If the directory exists, pull the latest changes
-                        dir(PROJECT_DIR) {
+                        dir(projectDir) {
                             sh 'git pull origin main'
                         }
                     }
@@ -25,16 +19,10 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                dir(PROJECT_DIR) {
-                    // Fix permissions if needed
-                    sh 'sudo chown -R jenkins:jenkins ${PROJECT_DIR} || true'
-                    
-                    // Install npm dependencies
+                dir('/var/www/html/UI/LMS-WEB') {
                     sh '''
-                        npm install || {
-                            echo "npm install failed. Exiting..."
-                            exit 1
-                        }
+                        export PATH=$PATH:/path/to/node:/path/to/npm
+                        npm install
                     '''
                 }
             }
@@ -42,14 +30,22 @@ pipeline {
 
         stage('Restart Application') {
             steps {
-                dir(PROJECT_DIR) {
-                    sh '''
-                        if pm2 describe app > /dev/null 2>&1; then
-                            pm2 restart app
-                        else
-                            pm2 start app.js --name app
-                        fi
-                    '''
+                dir('/var/www/html/UI/LMS-WEB') {
+                    script {
+                        sh '''
+                            export PATH=$PATH:/path/to/node:/path/to/pm2
+                            if pm2 describe app > /dev/null 2>&1; then
+                                echo "Restarting existing app"
+                                pm2 restart app
+                            else
+                                echo "Starting new app"
+                                pm2 start app.js --name app
+                            fi
+                            pm2 save
+                            pm2 list
+                            timeout 60s pm2 logs app || true
+                        '''
+                    }
                 }
             }
         }
@@ -63,7 +59,6 @@ pipeline {
             echo 'Pipeline failed.'
         }
         always {
-            // Clean up workspace after the job
             cleanWs()
         }
     }
