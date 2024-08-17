@@ -23,13 +23,8 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 dir('/var/www/html/UI/LMS-WEB') {
-                    // Fix permissions and install npm dependencies
-                    sh '''
-                        # Ensure correct ownership and permissions
-                        chown -R $(whoami):$(whoami) /var/www/html/UI/LMS-WEB
-                        chmod -R 755 /var/www/html/UI/LMS-WEB
-                        npm install
-                    '''
+                    // Install npm dependencies
+                    sh 'npm install'
                 }
             }
         }
@@ -39,7 +34,7 @@ pipeline {
                 dir('/var/www/html/UI/LMS-WEB') {
                     // Restart the application using PM2
                     sh '''
-                        if pm2 list | grep -q "app"; then
+                        if pm2 describe app > /dev/null 2>&1; then
                             pm2 restart app
                         else
                             pm2 start app.js --name app
