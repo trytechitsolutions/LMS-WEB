@@ -1,15 +1,21 @@
 pipeline {
     agent any
 
+    environment {
+        PROJECT_DIR = '/var/www/html/UI/LMS-WEB'
+    }
+
     stages {
         stage('Checkout') {
             steps {
                 script {
-                    def projectDir = '/var/www/html/UI/LMS-WEB'
-                    if (!fileExists(projectDir)) {
-                        sh "git clone https://github.com/trytechitsolutions/LMS-WEB.git ${projectDir}"
+                    // Check if the directory already exists
+                    if (!fileExists(PROJECT_DIR)) {
+                        // Clone the repository if it doesn't exist
+                        sh "git clone https://github.com/trytechitsolutions/LMS-WEB.git ${PROJECT_DIR}"
                     } else {
-                        dir(projectDir) {
+                        // If the directory exists, pull the latest changes
+                        dir(PROJECT_DIR) {
                             sh 'git pull origin main'
                         }
                     }
@@ -17,26 +23,26 @@ pipeline {
             }
         }
 
-        stage('Fix Permissions') {
-            steps {
-                dir('/var/www/html/UI/LMS-WEB') {
-                    sh 'sudo chown -R jenkins:jenkins .'
-                    sh 'sudo chmod -R 755 .'
-                }
-            }
-        }
-
         stage('Install Dependencies') {
             steps {
-                dir('/var/www/html/UI/LMS-WEB') {
-                    sh 'npm install'
+                dir(PROJECT_DIR) {
+                    // Fix permissions if needed
+                    sh 'sudo chown -R jenkins:jenkins ${PROJECT_DIR} || true'
+                    
+                    // Install npm dependencies
+                    sh '''
+                        npm install || {
+                            echo "npm install failed. Exiting..."
+                            exit 1
+                        }
+                    '''
                 }
             }
         }
 
         stage('Restart Application') {
             steps {
-                dir('/var/www/html/UI/LMS-WEB') {
+                dir(PROJECT_DIR) {
                     sh '''
                         if pm2 describe app > /dev/null 2>&1; then
                             pm2 restart app
@@ -45,7 +51,7 @@ pipeline {
                         fi
                         pm2 save
                         pm2 list
-                        pm2 logs app
+                        timeout 60s pm2 logs app || true
                     '''
                 }
             }
@@ -60,6 +66,7 @@ pipeline {
             echo 'Pipeline failed.'
         }
         always {
+            // Clean up workspace after the job
             cleanWs()
         }
     }
