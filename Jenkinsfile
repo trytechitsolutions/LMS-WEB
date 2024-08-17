@@ -34,10 +34,10 @@ pipeline {
                 dir('/var/www/html/UI/LMS-WEB') {
                     // Restart the application using PM2
                     sh '''
-                        if pm2 list | grep -q "my-app"; then
-                            pm2 restart my-app
+                        if pm2 list | grep -q "app"; then
+                            pm2 restart app
                         else
-                            pm2 start app.js --name my-app
+                            pm2 start app.js --name app
                         fi
                     '''
                 }
