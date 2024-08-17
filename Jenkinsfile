@@ -6,12 +6,9 @@ pipeline {
             steps {
                 script {
                     def projectDir = '/var/www/html/UI/LMS-WEB'
-                    // Check if the directory already exists
                     if (!fileExists(projectDir)) {
-                        // Clone the repository if it doesn't exist
                         sh "git clone https://github.com/trytechitsolutions/LMS-WEB.git ${projectDir}"
                     } else {
-                        // If the directory exists, pull the latest changes
                         dir(projectDir) {
                             sh 'git pull origin main'
                         }
@@ -20,10 +17,19 @@ pipeline {
             }
         }
 
+        stage('Fix Permissions') {
+            steps {
+                dir('/var/www/html/UI/LMS-WEB') {
+                    // Fix permissions
+                    sh 'sudo chown -R jenkins:jenkins .'
+                    sh 'sudo chmod -R 755 .'
+                }
+            }
+        }
+
         stage('Install Dependencies') {
             steps {
                 dir('/var/www/html/UI/LMS-WEB') {
-                    // Install npm dependencies
                     sh 'npm install'
                 }
             }
@@ -32,7 +38,6 @@ pipeline {
         stage('Restart Application') {
             steps {
                 dir('/var/www/html/UI/LMS-WEB') {
-                    // Restart the application using PM2
                     sh '''
                         if pm2 describe app > /dev/null 2>&1; then
                             pm2 restart app
@@ -53,7 +58,6 @@ pipeline {
             echo 'Pipeline failed.'
         }
         always {
-            // Clean up workspace after the job
             cleanWs()
         }
     }
