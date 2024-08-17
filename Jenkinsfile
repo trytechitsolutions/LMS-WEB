@@ -23,8 +23,12 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 dir('/var/www/html/UI/LMS-WEB') {
-                    // Install npm dependencies
-                    sh 'npm install'
+                    // Fix permissions and install npm dependencies
+                    sh '''
+                        sudo chown -R $(whoami):$(whoami) /var/www/html/UI/LMS-WEB
+                        sudo chmod -R 755 /var/www/html/UI/LMS-WEB
+                        npm install
+                    '''
                 }
             }
         }
