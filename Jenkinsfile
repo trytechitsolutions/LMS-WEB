@@ -4,16 +4,13 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                script {
-                    // Checkout the repository
-                    git url: 'https://github.com/trytechitsolutions/LMS-WEB.git', branch: 'main'
-                }
+                // Checkout the repository
+                git url: 'https://github.com/trytechitsolutions/LMS-WEB.git', branch: 'main'
+                
                 // Navigate to your project directory (if necessary)
                 dir('your-project') {
-                    steps {
-                        // Check out the main branch
-                        sh 'git checkout main'
-                    }
+                    // Commands to execute inside the 'your-project' directory
+                    sh 'git checkout main'
                 }
             }
         }
