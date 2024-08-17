@@ -6,11 +6,35 @@ pipeline {
             steps {
                 // Checkout the repository
                 git url: 'https://github.com/trytechitsolutions/LMS-WEB.git', branch: 'main'
-                
-                // Navigate to your project directory (if necessary)
+            }
+        }
+
+        stage('Update Code') {
+            steps {
+                // Navigate to your project directory
                 dir('your-project') {
-                    // Commands to execute inside the 'your-project' directory
-                    sh 'git checkout main'
+                    // Pull the latest changes from the main branch
+                    sh 'git pull origin main'
+                }
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                // Navigate to your project directory
+                dir('your-project') {
+                    // Install npm dependencies
+                    sh 'npm install'
+                }
+            }
+        }
+
+        stage('Restart Application') {
+            steps {
+                // Navigate to your project directory
+                dir('your-project') {
+                    // Restart the application using PM2
+                    sh 'pm2 restart app.js'
                 }
             }
         }
