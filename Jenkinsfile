@@ -5,8 +5,8 @@ pipeline {
         stage('Checkout') {
             steps {
                 script {
-                    // Check if the directory already exists
                     def projectDir = '/var/www/html/UI/LMS-WEB'
+                    // Check if the directory already exists
                     if (!fileExists(projectDir)) {
                         // Clone the repository if it doesn't exist
                         sh "git clone https://github.com/trytechitsolutions/LMS-WEB.git ${projectDir}"
@@ -22,7 +22,6 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                // Navigate to your project directory
                 dir('/var/www/html/UI/LMS-WEB') {
                     // Install npm dependencies
                     sh 'npm install'
@@ -32,10 +31,15 @@ pipeline {
 
         stage('Restart Application') {
             steps {
-                // Navigate to your project directory
                 dir('/var/www/html/UI/LMS-WEB') {
                     // Restart the application using PM2
-                    sh 'pm2 restart my-app || pm2 start app.js --name my-app'
+                    sh '''
+                        if pm2 list | grep -q "my-app"; then
+                            pm2 restart my-app
+                        else
+                            pm2 start app.js --name my-app
+                        fi
+                    '''
                 }
             }
         }
