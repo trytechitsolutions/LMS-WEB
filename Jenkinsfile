@@ -4,17 +4,18 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                // Checkout the repository
-                git url: 'https://github.com/trytechitsolutions/LMS-WEB.git', branch: 'main'
-            }
-        }
-
-        stage('Update Code') {
-            steps {
-                // Navigate to your project directory
-                dir('your-project') {
-                    // Pull the latest changes from the main branch
-                    sh 'git pull origin main'
+                script {
+                    // Check if the directory already exists
+                    def projectDir = '/var/www/html/UI/LMS-WEB'
+                    if (!fileExists(projectDir)) {
+                        // Clone the repository if it doesn't exist
+                        sh "git clone https://github.com/trytechitsolutions/LMS-WEB.git ${projectDir}"
+                    } else {
+                        // If the directory exists, pull the latest changes
+                        dir(projectDir) {
+                            sh 'git pull origin main'
+                        }
+                    }
                 }
             }
         }
@@ -22,7 +23,7 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 // Navigate to your project directory
-                dir('your-project') {
+                dir('/var/www/html/UI/LMS-WEB') {
                     // Install npm dependencies
                     sh 'npm install'
                 }
@@ -32,9 +33,9 @@ pipeline {
         stage('Restart Application') {
             steps {
                 // Navigate to your project directory
-                dir('your-project') {
+                dir('/var/www/html/UI/LMS-WEB') {
                     // Restart the application using PM2
-                    sh 'pm2 start app.js'
+                    sh 'pm2 restart my-app || pm2 start app.js --name my-app'
                 }
             }
         }
