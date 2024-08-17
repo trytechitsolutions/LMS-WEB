@@ -49,9 +49,6 @@ pipeline {
                         else
                             pm2 start app.js --name app
                         fi
-                        pm2 save
-                        pm2 list
-                        timeout 60s pm2 logs app || true
                     '''
                 }
             }
