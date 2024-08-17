@@ -34,7 +34,6 @@ pipeline {
                 // Navigate to your project directory
                 dir('your-project') {
                     // Restart the application using PM2
-                    sh 'pm2 stp app.js'
                     sh 'pm2 start app.js'
                 }
             }
