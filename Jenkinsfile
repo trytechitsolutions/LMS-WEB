@@ -25,8 +25,9 @@ pipeline {
                 dir('/var/www/html/UI/LMS-WEB') {
                     // Fix permissions and install npm dependencies
                     sh '''
-                        sudo chown -R $(whoami):$(whoami) /var/www/html/UI/LMS-WEB
-                        sudo chmod -R 755 /var/www/html/UI/LMS-WEB
+                        # Ensure correct ownership and permissions
+                        chown -R $(whoami):$(whoami) /var/www/html/UI/LMS-WEB
+                        chmod -R 755 /var/www/html/UI/LMS-WEB
                         npm install
                     '''
                 }
